@@ -6,6 +6,10 @@ const bodyParser = require('body-parser');
 
 
 
+const userRoute = require('./routes/user');
+
+
+
 
 
 
@@ -19,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended : true }));
 
 
 
-
+app.use('/user', userRoute);
 
 
 const PORT = 3000;
