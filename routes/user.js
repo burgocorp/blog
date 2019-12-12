@@ -4,6 +4,7 @@ const router = express.Router();
 const gravatar = require("gravatar");
 const userModel = require("../models/user");
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // user register
 router.post('/register', (req,res) =>{
@@ -69,6 +70,55 @@ router.post('/register', (req,res) =>{
 
 // user login
 router.post('/login', (req,res) =>{
+
+    //email check -> password check(decoding) -> returning jwt -> response
+    userModel
+        .findOne({email : req.body.email})
+        .exec()
+        .then(user => {
+            //(사용자입력이메일이 없으면 아래 프로세스)
+            if (!user){
+                return res.json({
+                    msg : "등록된 이메일이 없음"
+                });
+            }else{
+               
+                bcrypt
+                    .compare(req.body.password, user.password)
+                    .then(isMatch => {
+                        if (isMatch){
+
+                            // jsonwebtoken 에 담을 내용 생성 
+                            const payload = { id : user.id, name : user.name, avatar : user.avatar};
+
+                            //sign token
+                            const token = jwt.sign(
+                                payload,
+                                "secret",
+                                {expiresIn : 36000}
+                            );
+
+                            return res.json({
+                                msg :"successfull login",
+                                tokenInfo : 'bearer ' + token
+                            });
+                        }else{
+                            res.json({
+                                msg : 'password incorrect'
+                            });
+                        }
+                    })
+                    .catch(err => res.json(err));
+
+            
+               
+            }
+        })
+        .catch(err => {
+            res.json({
+                msg : err.message
+            });
+        });
 
 });
 
