@@ -6,8 +6,19 @@ const userModel = require("../models/user");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+
+const validateRegisterInput = require('../validation/register');
+
+
 // user register
 router.post('/register', (req,res) =>{
+
+    const {errors, isValid } = validateRegisterInput(req.body);
+    if (!isValid){
+        return res.status(400).json(errors);
+    }
+
+
     // email 유무체크 -> avatar 생성 -> usermodel -> password암호화 -> response
     userModel
         .findOne({email : req.body.email})
