@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 
 
 const validateRegisterInput = require('../validation/register');
-
+const validateLoginInput = require('../validation/login');
 
 // user register
 router.post('/register', (req,res) =>{
@@ -81,6 +81,11 @@ router.post('/register', (req,res) =>{
 
 // user login
 router.post('/login', (req,res) =>{
+
+    const {errors, isValid} = validateLoginInput(req.body);
+    if (!isValid){
+        return res.status(400).json(errors);
+    }
 
     //email check -> password check(decoding) -> returning jwt -> response
     userModel
